@@ -1,6 +1,6 @@
 # a1
 
-Replace this with your report! (Or include a PDF).
+Replace this with your report!
 
 To help you get started, we've included test images (one with a ground truth file) in test-images.
 

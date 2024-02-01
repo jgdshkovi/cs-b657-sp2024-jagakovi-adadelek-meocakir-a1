@@ -11,6 +11,8 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
+FILE_HEADER_BUFFER = 600
+
 def find_negated_ranges(ranges, min_val, max_val):
     negated_ranges = []
     start_point = min_val
@@ -28,7 +30,7 @@ def grayscale(img):
     pixels = gray_img.load()
 
     # Cover the header of the file
-    for y in range(min(550, gray_img.height)):
+    for y in range(FILE_HEADER_BUFFER):
         for x in range(gray_img.width):
             pixels[x, y] = WHITE
 
@@ -141,18 +143,30 @@ if __name__ == '__main__':
     directory_path = 'test-images/'
     jpg_files = [os.path.join(directory_path, file) for file in os.listdir(directory_path) if file.endswith('.jpg')]
 
-    if not os.path.exists('Out/Cropped'):
-        os.makedirs('Out/Cropped')
+    if not os.path.exists('Out/Gray'):
+        os.makedirs('Out/Gray')
+
+    if not os.path.exists('Out/Column_Only'):
+        os.makedirs('Out/Column_Only')
+
+    if not os.path.exists('Out/Final'):
+        os.makedirs('Out/Final')
 
     for path in jpg_files:
         filename = os.path.splitext(os.path.basename(path))[0]
         print(f'Now processing {filename}...')
         start = time.time()
         img = Image.open(path)
+
         img = grayscale(img)
+        img.save(f"Out/Gray/{filename}.png")
+
         img = img.convert('RGB')
+
         img, column_ranges = split_columns(img)
+        img.save(f"Out/Column_Only/{filename}.png")
+
         img = split_rows(img, column_ranges)
         end = time.time()
         print(f'Time Cost: {(end - start):.2f}s, Question Columns: {column_ranges}')
-        img.save(f"Out/Cropped/cropped_{filename}.png")
+        img.save(f"Out/Final/{filename}.png")

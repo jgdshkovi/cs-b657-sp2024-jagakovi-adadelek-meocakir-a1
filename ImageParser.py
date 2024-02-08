@@ -1,5 +1,6 @@
 import os
 import time
+import matplotlib.pyplot as plt
 
 from PIL import Image
 
@@ -138,6 +139,74 @@ def split_rows(img, question_ranges):
                 non_red_row_start = None
     return img
 
+def print_options_marked(img1, question_ranges, file_name):
+    pixels = img1.load()
+    # start_col, end_col, width = question_ranges
+    # non_red_row_start = None
+    count = 0
+    with open(f"Out/Ground_Truth/{file_name}_groundtruth.txt", "w") as my_file:
+        for start_col, end_col, width in question_ranges:
+            # count = 0
+            for i in range(start_col, start_col + 1):
+                non_red_row_start = None
+                y = 1
+                while y+1 < img.height:
+                # for y in range(img.height):
+                    start_non_red = y
+                    while pixels[start_col, y] == RED and y < img.height-1:
+                        # print(y)
+                        y += 1
+                    non_red_row_start = y
+                    while pixels[start_col, y] != RED and y < img.height-1:
+                        y += 1
+                    end_non_red = y
+                    
+                    if end_non_red != non_red_row_start:
+                        count += 1
+                        print(count)
+
+                        option_selected_pct = []
+                        non_blue_x_start = None
+                        tmp = start_col-2
+                        while tmp+1 < end_col:
+                            # print(non_red_row_start, non_blue_x_start, "non red & non blue start")
+                            # tmp = non_blue_x_start
+                            while pixels[tmp, non_red_row_start] in [BLUE, GREEN] and tmp < end_col-1:
+                                tmp += 1
+                            non_blue_x_start = tmp
+                            # end_non_blue = non_blue_x_start
+                            # print("after 1st while")
+                            while pixels[tmp, non_red_row_start] not in [BLUE, GREEN] and tmp < end_col-1:
+                                tmp += 1
+                            end_non_blue = tmp
+                            # print("after 2 while")
+
+                            black_option_count = 0
+                            for nb_1 in range(non_blue_x_start, end_non_blue):
+                                # for nb_2 in range(non_red_row_start, end_non_red):
+                                #     pixels[nb_1, nb_2] = BLACK
+                                black_option_count += sum(1 for nb_2 in range(non_red_row_start, end_non_red) if pixels[nb_1, nb_2] == RGB_BLACK)
+                            # print(end_non_blue, non_blue_x_start, end_non_red, non_red_row_start, 'end nb, nb xstart, end nr, nr row start')
+                            black_pxls_pct = black_option_count/((end_non_blue - non_blue_x_start)*(end_non_red - non_red_row_start))
+                            option_selected_pct.append(black_pxls_pct)
+                        print(option_selected_pct[-5:], "percentage of black pixels for the options selected")
+                        threshold_pct = 0.35
+                        out_str = str(count) + " "
+                        if option_selected_pct[-5] > threshold_pct:
+                            out_str += "A"
+                        if option_selected_pct[-4] > threshold_pct:
+                            out_str += "B"
+                        if option_selected_pct[-3] > threshold_pct:
+                            out_str += "C"
+                        if option_selected_pct[-2] > threshold_pct:
+                            out_str += "D"
+                        if option_selected_pct[-1] > threshold_pct:
+                            out_str += "E"
+                        # print(out_str)
+                        my_file.write(out_str+"\n")
+                          
+        print("Total questions: ", count)
+
 
 if __name__ == '__main__':
     directory_path = 'test-images/'
@@ -151,6 +220,9 @@ if __name__ == '__main__':
 
     if not os.path.exists('Out/Final'):
         os.makedirs('Out/Final')
+    
+    if not os.path.exists('Out/Ground_Truth'):
+        os.makedirs('Out/Ground_Truth')
 
     for path in jpg_files:
         filename = os.path.splitext(os.path.basename(path))[0]
@@ -167,6 +239,7 @@ if __name__ == '__main__':
         img.save(f"Out/Column_Only/{filename}.png")
 
         img = split_rows(img, column_ranges)
+        print_options_marked(img, column_ranges, filename)
         end = time.time()
-        print(f'Time Cost: {(end - start):.2f}s, Question Columns: {column_ranges}')
+        print(f'Time Cost: {(end - start):.2f}s, Question Columns: {column_ranges}\n')
         img.save(f"Out/Final/{filename}.png")

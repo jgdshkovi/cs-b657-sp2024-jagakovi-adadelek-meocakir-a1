@@ -163,7 +163,7 @@ def print_options_marked(img1, question_ranges, file_name):
                     
                     if end_non_red != non_red_row_start:
                         count += 1
-                        print(count)
+                        # print(count)
 
                         option_selected_pct = []
                         non_blue_x_start = None
@@ -189,7 +189,7 @@ def print_options_marked(img1, question_ranges, file_name):
                             # print(end_non_blue, non_blue_x_start, end_non_red, non_red_row_start, 'end nb, nb xstart, end nr, nr row start')
                             black_pxls_pct = black_option_count/((end_non_blue - non_blue_x_start)*(end_non_red - non_red_row_start))
                             option_selected_pct.append(black_pxls_pct)
-                        print(option_selected_pct[-5:], "percentage of black pixels for the options selected")
+                        # print(option_selected_pct[-5:], "percentage of black pixels for the options selected")
                         threshold_pct = 0.35
                         out_str = str(count) + " "
                         if option_selected_pct[-5] > threshold_pct:

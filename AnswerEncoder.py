@@ -4,7 +4,7 @@ import random
 from PIL import Image
 
 MAX_LENGTH = 85
-BLOCK_SIZE = 10
+BLOCK_SIZE = 10  # TODO: Controls qr size. Adjust this parameter so it fits to a whitespace on the original form
 FOOTER = '00000000'
 RGB_WHITE = (255, 255, 255)
 RGB_BLACK = (0, 0, 0)

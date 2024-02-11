@@ -1,0 +1,14 @@
+# Colors
+RGB_WHITE = (255, 255, 255)
+RGB_BLACK = (0, 0, 0)
+WHITE = 255
+BLACK = 0
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+HIGHLIGHT_COLOR = (0, 255, 0, 128)  # transparent green
+
+# Params
+MARK_THRESHOLD = 0.35
+WRITE_THRESHOLD = 0.1
+FILE_HEADER_BUFFER = 600

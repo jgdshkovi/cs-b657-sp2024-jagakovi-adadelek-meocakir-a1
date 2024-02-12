@@ -65,7 +65,7 @@ if __name__ == '__main__':
     input_image = sys.argv[1]
     output_file = sys.argv[2]
     # Decoding
-    decoded_text = decode_text("encoded_image.png")
+    decoded_text = decode_text(input_image)
     if decoded_text:
         write_text_to_file(decoded_text, output_file)
 

@@ -1,45 +1,82 @@
 import sys
+from PIL import Image
 
-from PIL import Image, ImageDraw
+# Constants for marking the beginning and end of encoded text
+START_MARKER = '01010101'
+END_MARKER = '10101010'
+LINE_BREAK_MARKER = '11111111'
 
-from AnswerEncoder import encode_message
-from params import RGB_WHITE, RGB_BLACK, FRAME_THICKNESS, MARGIN
+def preprocess_image(image_path):
+    img = Image.open(image_path).convert('L')  # Convert to grayscale
+    img_binary = img.point(lambda x: 0 if x < 128 else 1, mode='1')  # Binarize image
+    return img_binary
 
+def encode_text(image, text_path):
+    with open(text_path, 'r') as file:
+        lines = file.readlines()
 
-if __name__ == '__main__':
+    width, height = image.size
+    pixels = list(image.getdata())
+    index = 0
+
+    # Start encoding from 50 pixels from all edges
+    start_x = 50
+    start_y = 50
+
+    # Calculate the end position
+    end_x = width - 50
+    end_y = height - 50
+
+#   # Mark the beginning of the encoded text
+#     for i, bit in enumerate(START_MARKER):
+#         pixels[start_y * width + start_x + i] = int(bit)
+
+    current_y = start_y
+    for line in lines:
+        current_x = start_x
+        binary_text = ''.join(format(ord(char), '08b') for char in line.strip())  # Convert line to binary
+        
+        # Mark the beginning of the line
+        for i, bit in enumerate(START_MARKER):
+            pixels[current_y * width + start_x + i] = int(bit)
+        current_x += len(START_MARKER)
+        
+        for i, bit in enumerate(binary_text):
+            pixels[current_y * width + current_x + i] = int(bit)
+        # Add line break marker at the end of the line
+        current_x += len(binary_text)
+        for i, bit in enumerate(LINE_BREAK_MARKER):
+            pixels[current_y * width + current_x + i] = int(bit)
+        current_y += 1
+    
+    # Mark the beginning of the line
+        for i, bit in enumerate(START_MARKER):
+            pixels[current_y * width + start_x + i] = int(bit)
+
+    # Mark the end of the encoded text
+    for i, bit in enumerate(END_MARKER):
+        pixels[current_y * width + start_x + len(START_MARKER) + i] = int(bit)
+
+    encoded_image = Image.new('1', (width, height))
+    encoded_image.putdata(pixels)
+    return encoded_image
+
+def main():
     if len(sys.argv) != 4:
-        print("Usage: python3 inject.py <input_image> <answers> <output_image>")
-        sys.exit(1)
+        print("Usage: python inject.py <image_path> <text_file_path> <output_image_path>")
+        return
 
-    input_image = sys.argv[1]
-    answers_file = sys.argv[2]
-    output_image = sys.argv[3]
+    image_path = sys.argv[1]
+    text_file_path = sys.argv[2]
+    output_image_path = sys.argv[3]
 
-    answers = ""
+    # Preprocess image
+    image = preprocess_image(image_path)
 
-    with open(answers_file, 'r') as file:
-        for line in file:
-            if line.strip():
-                answers += line.strip().split(' ')[-1] + ' '
+    # Encoding
+    encoded_image = encode_text(image, text_file_path)
+    encoded_image.save(output_image_path)
+    print("Text encoded successfully.")
 
-    encoded_qr = encode_message(answers)
-
-    new_width = encoded_qr.width + 2 * (MARGIN + FRAME_THICKNESS)
-    new_height = encoded_qr.height + 2 * (MARGIN + FRAME_THICKNESS)
-
-    frame_img = Image.new("RGB", (new_width, new_height), RGB_BLACK)
-
-    draw = ImageDraw.Draw(frame_img)
-    draw.rectangle([(FRAME_THICKNESS, FRAME_THICKNESS), (new_width - FRAME_THICKNESS, new_height - FRAME_THICKNESS)],
-                   fill=RGB_WHITE)
-
-    frame_img.paste(encoded_qr, (MARGIN + FRAME_THICKNESS, MARGIN + FRAME_THICKNESS))
-
-    form = Image.open(input_image)
-
-    pos_x = form.width - new_width - MARGIN
-    pos_y = MARGIN
-
-    form.paste(frame_img, (pos_x, pos_y))
-
-    form.save(output_image)
+if __name__ == "__main__":
+    main()

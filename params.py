@@ -30,3 +30,4 @@ BINARY_TO_ALPHABET = {v: k for k, v in ALPHABET_TO_BINARY.items()}
 # Injector/Extractor params
 MARGIN = 10
 FRAME_THICKNESS = 5
+FORM_SIZE = (1700, 2200)

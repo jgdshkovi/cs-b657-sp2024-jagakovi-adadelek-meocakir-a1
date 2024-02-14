@@ -30,8 +30,7 @@ def encode_message(message):
     return img
 
 
-def decode_message(image_path):
-    img = Image.open(image_path)
+def decode_message(img):
     pixels = img.load()
 
     image_size = img.size[0]

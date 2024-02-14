@@ -1,88 +1,85 @@
 import sys
+
 from PIL import Image
 
-# Constants for marking the beginning and end of encoded text
-START_MARKER = '01010101'
-END_MARKER = '10101010'
-LINE_BREAK_MARKER = '11111111'
-def preprocess_image(image_path):
-    img = Image.open(image_path).convert('L')  # Convert to grayscale
-    img_binary = img.point(lambda x: 0 if x < 128 else 1, mode='1')  # Binarize image
-    return img_binary
+from AnswerEncoder import decode_message
+from params import BLACK, WHITE, MARGIN, FRAME_THICKNESS
 
-def extract_text(encoded_image):
-    width, height = encoded_image.size
-    pixels = list(encoded_image.getdata())
-    extracted_lines = []
 
-    # Find the starting marker
-    start_index = ''.join(str(bit) for bit in [int(bit) for bit in START_MARKER])
-    start_marker_width = len(START_MARKER)
-    current_y = 0
+def grayscale(image, thr):
+    for x in range(image.width):
+        for y in range(image.height):
+            p = image.getpixel((x, y))
+            if p < thr:
+                image.putpixel((x, y), BLACK)
+            else:
+                image.putpixel((x, y), WHITE)
+    return image
 
-    # Scan the image from top to bottom
-    done = False
-    while current_y < height:
-        current_x = 0
-        while current_x < width:
-            # Check for the starting marker
-            if ''.join(str(bit) for bit in pixels[current_y * width + current_x:current_y * width + current_x + start_marker_width]) == start_index and not done:
-                # Extract the encoded text starting from this position
-                text_ascii = extract_encoded_text(pixels, width, height, current_x + start_marker_width, current_y)
-                print(text_ascii)
-                if text_ascii != "done" and not done:
-                    extracted_lines.append(text_ascii)
-                else:
-                    done = True
-                break
-            current_x += 1
-        if done:
+
+def find_first_black_pixel(image):
+    width, height = image.size
+    for i in range(min(width, height)):
+        pixel = image.getpixel((width - 1 - i, i))
+        if pixel == BLACK:
+            top_right_black = (width - 1 - i, i)
             break
-        current_y += 1
+    else:
+        top_right_black = None
 
-    return '\n'.join(extracted_lines)
+    return top_right_black
 
-def extract_encoded_text(pixels, width, height, start_x, start_y):
-    text_ascii = ''
-    current_x = start_x
-    current_y = start_y
 
-    while current_y < height:
-        while current_x < width:
-            # Check for the line break marker
-            if ''.join(str(bit) for bit in pixels[current_y * width + current_x:current_y * width + current_x + len(LINE_BREAK_MARKER)]) == LINE_BREAK_MARKER:
-                return text_ascii
-            # Check for the ending marker
-            elif ''.join(str(bit) for bit in pixels[current_y * width + current_x:current_y * width + current_x + len(END_MARKER)]) == END_MARKER:
-                return "done"
-            # Read eight bits at a time and append to text_ascii
-            byte_bits = ''.join(str(bit) for bit in pixels[current_y * width + current_x:current_y * width + current_x + 8])
-            text_ascii += chr(int(byte_bits, 2))
-            current_x += 8  # Move to the next byte
-        current_y += 1
-        current_x = 0  # Move to the start of the next line
+def find_bounding_box(image, start_pixel):
+    width, height = image.size
+    x_min, y_min = start_pixel
+    x_max, y_max = start_pixel
+    pixels_to_check = [start_pixel]
+    checked_pixels = set()
 
-    return text_ascii
+    while pixels_to_check:
+        x, y = pixels_to_check.pop()
+        if (x, y) in checked_pixels:
+            continue
+        checked_pixels.add((x, y))
 
-def main():
+        # Check surrounding pixels
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < width and 0 <= ny < height and image.getpixel((nx, ny)) == BLACK:
+                    pixels_to_check.append((nx, ny))
+                    x_min = min(x_min, nx)
+                    y_min = min(y_min, ny)
+                    x_max = max(x_max, nx)
+                    y_max = max(y_max, ny)
+
+    return x_min, y_min, x_max + 1, y_max + 1
+
+
+# test-images/img.png out.txt
+if __name__ == '__main__':
     if len(sys.argv) != 3:
         print("Usage: python extract.py <encoded_image_path> <output_text_path>")
-        return
 
     encoded_image_path = sys.argv[1]
     output_text_path = sys.argv[2]
 
-    # Preprocess image
-    encoded_image = preprocess_image(encoded_image_path)
+    img = Image.open(encoded_image_path).convert('L')
 
-    # Extracting text
-    extracted_text = extract_text(encoded_image)
+    img = grayscale(img, 60)
+    starting_point = find_first_black_pixel(img)
 
-    # Write the extracted text to the output file
-    with open(output_text_path, 'w') as file:
-        file.write(extracted_text)
+    qr = find_bounding_box(img, starting_point)
+    qr = img.crop(qr)
 
-    print("Text extracted successfully.")
+    left = (MARGIN + FRAME_THICKNESS)
+    upper = (MARGIN + FRAME_THICKNESS)
+    right = qr.width - (MARGIN + FRAME_THICKNESS)
+    lower = qr.height - (MARGIN + FRAME_THICKNESS)
 
-if __name__ == "__main__":
-    main()
+    qr = qr.crop((left, upper, right, lower))
+
+    message = decode_message(qr.convert('RGB'))
+    message = "\n".join(f"{i + 1} {word}" for i, word in enumerate(message.split()))
+    open(output_text_path, 'w').write(message)

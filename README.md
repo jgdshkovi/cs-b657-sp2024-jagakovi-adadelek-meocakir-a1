@@ -1,15 +1,14 @@
-# a1
+# Project Report
 
-Replace this with your report!
+## Introduction
 
-To help you get started, we've included test images (one with a ground truth file) in test-images.
+## Preprocess
+![a-48](Animation/a-48.gif)
+![c-33](Animation/c-33.gif)
 
-We've also provided sample code to show you how to do basic image processing operations using python.
+## Question Detection
 
-To run the sample python code, just type:
+## Answer Inject/Extraction
 
-```
-python3 devil_pichu.py example.jpg
-```
-
+## Conclusion
 

@@ -107,7 +107,7 @@ if __name__ == '__main__':
     try:
         answers, marked_form = mark_form(input_image)
     except Exception as e:
-        print('An exception has occurred! Unable to recognize form.')
+        print(f'An exception has occurred! Unable to recognize form.\n{e}')
         exit(2)
 
     open(output_file, 'w').write(answers)

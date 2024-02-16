@@ -8,7 +8,7 @@ the methodologies we used to identify answers within the preprocessed images. Fi
 injection/extraction.
 
 Our approach is both efficient and robust. It processes individual forms in under 3 seconds, maintaining high accuracy 
-with only two errors identified across the entire test dataset. This underscores the effectiveness and reliability of 
+with only two errors identified across the entire test dataset (Over 99% per-question accuracy). This highlights the effectiveness and reliability of 
 our approach in handling tasks with precision and speed.
 
 ### Assumptions
@@ -144,7 +144,7 @@ the extent that it merges with neighboring boxes, could complicate the model's a
 individual responses. Although we have incorporated a degree of tolerance to mitigate this issue, an excessive presence 
 of such cases could still pose significant challenges to the model's effectiveness.
 
-## Member Contributions
+## Contributions of the Authors
 **Cakiroglu, Mert Onur:** Designed preprocessing algorithm, Implemented barcode inject/extract answers.
 
 **Kovi, Jagadeesh:** Implemented answer detection algorithm.

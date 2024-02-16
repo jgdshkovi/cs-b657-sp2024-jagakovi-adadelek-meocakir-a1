@@ -144,10 +144,31 @@ the extent that it merges with neighboring boxes, could complicate the model's a
 individual responses. Although we have incorporated a degree of tolerance to mitigate this issue, an excessive presence 
 of such cases could still pose significant challenges to the model's effectiveness.
 
+## Other solutions we tried but didnt use as final
+In this section, we outline solution swe tried that either failed or that we chose not to use in our final solution.
+### Answer Detection(contour detection): 
+We tried using contour detection(tracing the boxes). The main idea is that if we follow the line and end up back where we started, we would have found a box. The main issue with this approach was that multiple pixels make a box and there could be a lot of repetition in just tryng to find one box leading to a lot of compute time
+
+### QR code(steganography):
+We experimented with steganography, injecting the correct answers into the least significant bit of the intensity value of the pixels, making it such that the injected image looked exactly the same as the original image. We were also able to extract the correct answers with full accuracy. The only problems with this approach was that we couldn't use jpg format to store the injected image because of jps's lossy compression which altered the injected text and that  the information is lost when the form is printed. we were able to fix the jpg compression issue by storing the injected image in png format
+
+### QR code(rot. invariant)
+This had really good potential of being super robust because it was rotationally invariant. It worked by encoding the text in the top left of the form using a starting and line break marker for each line, and for the last line, a starting and ending marker.\
+For example:\
+**SM**line1**LBM**\
+**SM**line2**LBM**\
+**SMEM**\
+where:\
+SM=Starting marker\
+LBM=line break marker\
+EM=Ending marker\\
+
+This was rotationally invariant because it verified the start point of the encrypted text in the extractor. It was also invaraiant to chnages in the expected position of the qrcode. We ended up not using this because the pixels werent enlarged enough to be extracted from the printed form.
+
 ## Contributions of the Authors
 **Cakiroglu, Mert Onur:** Designed preprocessing algorithm, Implemented barcode inject/extract answers.
 
 **Kovi, Jagadeesh:** Implemented answer detection algorithm.
 
-**Adelekan, Ade Emmanuel:** Experimented with different ideas for inject/extract.
+**Adelekan, Ade Emmanuel:** Experimented with different ideas for inject/extract(contour detection, steganography, rot. invariant)
 

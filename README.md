@@ -16,7 +16,7 @@ This animation showcases the key stages of our preprocessing algorithm. In this 
 frame explanation of each major step of our approach. The step number is specified in the top left of the animation.
 We use different colors for different steps of preprocessing for easy visualization.
 
-![a-48](Animation/a-48.gif)
+![a-48](Images/a-48.gif)
 
 ### Step 0-1
 These steps include removing the header of the form and converting every pixel to either pure white or pure black. We 
@@ -46,10 +46,102 @@ information (Notice the small white rows close to the header).
 ### Step 12
 We pass the preprocessed image to the grader.
 
-## Question Detection
+## Answer Detection (Grader)
+The answer detection algorithm receives a preprocessed image along with the locations of the question columns, 
+identified as the non-green columns. Because the student can write text to the left of every question the index of the 
+marked answers are not constant. That's why we start processing every question from the last index (Box for option E) 
+and check the last 5 spaces. We define a threshold to determine if a box is marked or not. 
+
+We assume that the 6th from the last index contains the question number. Any spaces beyond this may contain student 
+writing. To determine this we define a separate threshold to check any spaces left of the question number 
+(if it exists). We highlight the student's answers like the following:
+
+![Marked](Images/marked.png)
+
+
 
 ## Answer Inject/Extraction
+To inject and extract answers from the image we implement a simple barcode system. The barcode is added to the top right 
+of the image. Here is how the barcode looks after injection:
 
-## Conclusion
+![Barcode](Images/out.jpg)
+
+
+To generate the barcode we have to first encode the information in binary sequence. However, simply converting every 
+selected option to their direct binary equivalence would result in a significantly long sequence (8 bits per character).
+To minimize the encoded message we define the following mapping: 
+
+```python
+ALPHABET_TO_BINARY = {
+    'A': '000',
+    'B': '001',
+    'C': '010',
+    'D': '011',
+    'E': '100',
+    ' ': '101', # <--- Seperator
+}
+```
+
+Given that we only need an alphabet of size 6 to encode the entire answer sheet (five options and a separator character for 
+different questions), encoding the entire answer document on the sheet requires merely 3 bits per character. This compact 
+encoding scheme allows for efficient representation of all potential answers.
+
+Our barcode does not have a constant size. That's why we also include a box around the barcode. When extracting the info
+from the barcode we can simply find the bounding box of this box to extract the barcode itself. After the barcode is
+extracted from the original image, recovering the encoded info is trivial.
+
+To enhance the robustness of the barcode and to ensure its readability even under image compression, we allocate a 5x5 
+pixel area for each encoded bit within the barcode. We intentionally designed the size of our barcode so that even in 
+scenarios where the barcode reaches its maximum size (i.e., when every option is selected for every question) it still 
+fits to the whitespace in the header as shown below.
+
+![Max_Barcode](Images/max.jpg)
+
+## Points of Failure
+Our approach is not foolproof. In this section we will talk about observed and potential flaws of our approach.
+
+
+### Observed Failures
+The first mistake observed is the models fails to detect one of the marked options. This can simply be solved by 
+lowering the threshold value for detecting the options. However, if we further lower the threshold this would also cause
+for other false positive classifications in other parts of the image. So this causes more problems than it solves. 
+Another approach we tried was adding a slight blur to the form. Unfortunately, this solution also reduced the 
+accuracy of our model because our preprocessing implementation is not designed to handle blurred images so, it fails
+to find some columns or rows.
+
+![Mistake_1](Images/mistake_light.png)
+
+Another observed failure of our model is a special case where the students write the answer too close to the question number
+in any of the first 10 question. As it is shown in the bottom images, our preprocessing algorithm fails to separate the
+question number from the student answer because the handwritten 'A' is in the same column as the 10th question number.
+
+![Mistake_2_1](Images/mistake_column.png) ![Mistake_2_2](Images/mistake_column_marked.png)
+
+This is mostly a problem in the first 10 questions because of the single digit question numbers. We have not observed
+a problem anywhere else in the form because the column widths are roughly the same for the rest of the questions. We
+attempted to solve this problem by adding another column pass for individual questions to detect and fix cases like
+this. However, we quickly realised such a solution would increase the complexity of our algorithm exponentially because
+it introduced countless other cases to consider. At the end, we decided that a more general approach would be better for 
+our overall accuracy so, we decided not address this specific problem.
+
+### Potential Failures
+In this section, we acknowledge the potential for specific scenarios that, while not observed in our test cases, could 
+still feasibly occur and affect the accuracy model.
+
+Our model heavily relies on width length to find the question columns in the form. If a students writes too far away
+from the question number that could mess with the extracted column widths and our preprocessing algorithm may fail to
+find proper locations of the answers. Similarly, if the student writes too close to the question index, this could also
+cause similar problem explained in the previous section.
+
+Another potential challenge arises from the way students mark their answers. Excessive overflow in their markings, to 
+the extent that it merges with neighboring boxes, could complicate the model's ability to accurately interpret 
+individual responses. Although we have incorporated a degree of tolerance to mitigate this issue, an excessive presence 
+of such cases could still pose significant challenges to the model's effectiveness.
 
 ## Member Contributions
+**Cakiroglu, Mert Onur:** Designed preprocessing algorithm, Implemented barcode inject/extract answers.
+
+**Kovi, Jagadeesh:** Implemented answer detection algorithm.
+
+**Adelekan, Ade Emmanuel:** Experimented with different ideas for inject/extract.
+

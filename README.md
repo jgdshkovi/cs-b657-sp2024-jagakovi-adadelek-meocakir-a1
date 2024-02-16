@@ -162,7 +162,7 @@ For example:\
 where:\
 SM=Starting marker\
 LBM=line break marker\
-EM=Ending marker\
+EM=Ending marker
 
 This was rotationally invariant because it verified the start point of the encrypted text in the extractor. It was also invaraiant to chnages in the expected position of the qrcode. We ended up not using this because the pixels werent enlarged enough to be extracted from the printed form.
 To try this injector, simply use the inject_long_qr.py and extract_long_qr.py files in place of inject.py and extract.py

@@ -11,6 +11,12 @@ Our approach is both efficient and robust. It processes individual forms in unde
 with only two errors identified across the entire test dataset. This underscores the effectiveness and reliability of 
 our approach in handling tasks with precision and speed.
 
+### Assumptions
+Before we start we make 3 main assumptions about the data:
+* **Every image has the same size:** `1700x2200 px`. Although our algorithms can still work with various sizes as we do not rely on specific pixel coordinates in the image, we have not tested algorithm for such cases.
+* **Same general form layout.** Although our algorithm can still work with different amount of questions per form, it still requires 3 main answer columns in order to function. Any other major structural changes to form layout will cause our model to fail.
+* **Minimal distortion in the image.** Although our algorithm is robust enough to work around the minor distortion of the test dataset, transformations like large rotations (more than a few degrees), perspective changes and heavy image compression will cause our model to fail. 
+
 ## Preprocess
 This animation showcases the key stages of our preprocessing algorithm. In this section, we will provide a frame by 
 frame explanation of each major step of our approach. The step number is specified in the top left of the animation.

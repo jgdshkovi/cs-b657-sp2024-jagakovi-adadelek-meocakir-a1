@@ -1,5 +1,14 @@
 # Project Report
 
+This repository holds numerous files featuring experimental approaches we ultimately chose not to adopt as our primary 
+method for this assignment. Our final submission can be executed with the following commands:
+
+```shell
+python3 grade.py <input_image> <output_file>
+python3 inject.py <input_image> <answer_file> <output_image>
+python3 extract.py <input_image> <output_file>
+```
+
 ## Introduction
 In this report, we present a comprehensive documentation of our approaches and outcomes for Assignment 1. The report is 
 structured into 3 primary sections. Initially, we delve into image preprocessing, where we outline the procedures 

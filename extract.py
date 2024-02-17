@@ -60,7 +60,7 @@ def find_bounding_box(image, start_pixel):
 # test-images/img.png out.txt
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        print("Usage: python extract.py <encoded_image_path> <output_text_path>")
+        print("Usage: python <input_image> <output_file>")
 
     encoded_image_path = sys.argv[1]
     output_text_path = sys.argv[2]

@@ -7,7 +7,7 @@ from params import RGB_WHITE, RGB_BLACK, FRAME_THICKNESS, MARGIN
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
-        print("Usage: python3 grade.py <input_image> <answers> <output_image>")
+        print("Usage: python3 inject.py <input_image> <answer_file> <output_image>")
         sys.exit(1)
 
     input_image = sys.argv[1]

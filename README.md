@@ -197,14 +197,19 @@ individual characters were not enlarged enough to be extracted from the printed 
 To try this injector, simply use the `inject_long_qr.py` and `extract_long_qr.py` files in place of `inject.py` and 
 `extract.py`
 
-# Futute Improvements
-- We could try implementing the position markers to capture the orientation of the QR code, for faster efficient decoding. Or the orientation of the blank form (but the initial blank form should have the position markers embedded which would make it a LOT easier to scan and orient.)
-- Take care of rotation, translation of image to read & process the image correctly.
+# Future Improvements
+
+- **Position Markers Implementation:** Consider incorporating position markers to capture the orientation of the QR code for more efficient and faster decoding. 
+
+- **Rotation and Translation Handling:** Address rotation and translation issues in image processing to ensure accurate reading and processing of the images.
+
+- **Computation Speed Optimization:** Explore techniques to enhance the processing speed, especially on the CPU. Additionally, investigate the feasibility of implementing GPU acceleration for further performance improvements (if applicable).
+
 
 # Contributions of the Authors
 **Cakiroglu, Mert Onur:** Designed preprocessing algorithm, Implemented barcode inject/extract answers.
 
-**Kovi, Jagadeesh:** Implemented answer detection algorithm. Experimented with Edge detection(not working completely). Image Orientation (didn't integrate)
+**Kovi, Jagadeesh:** Implemented answer detection algorithm. Experimented with Edge detection(partially successful). Naive Image-Orientation (didn't integrate)
 
 **Adelekan, Ade Emmanuel:** Experimented with different ideas for inject/extract(contour detection, steganography, rot. invariant)
 

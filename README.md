@@ -153,20 +153,34 @@ the extent that it merges with neighboring boxes, could complicate the model's a
 individual responses. Although we have incorporated a degree of tolerance to mitigate this issue, an excessive presence 
 of such cases could still pose significant challenges to the model's effectiveness.
 
-## Other solutions we tried but didnt use as final
-In this section, we outline solution swe tried that either failed or that we chose not to use in our final solution.
+## Experimental (Unused) Solutions
+In this section, we outline solution we tried that either failed or that we chose not to use in our final solution.
+
 ### Answer Detection(contour detection): 
-We tried using contour detection(tracing the boxes). The main idea is that if we follow the line and end up back where we started, we would have found a box. The main issue with this approach was that multiple pixels make a box and there could be a lot of repetition in just tryng to find one box leading to a lot of compute time
+We tried using contour detection (tracing the boxes). The main idea is that if we follow the line and end up back where 
+we started, we would have found a box. The main issue with this approach was that multiple pixels make a box and there 
+could be a lot of repetition in just trying to find one box leading to a lot of compute time
 
 ### Sobel & Canny Edge Detection:
-Experiemented implementation of Edge Detection with Sobel operator & Canny Edge detection but using OpenCV. So due strict restricton on using the libraries other than PIL, dropped this approach. I didn't fully go forward with the approach. Only experimented & used for extracting the QR code after injecting it. 
+Experiemented implementation of Edge Detection with Sobel operator & Canny Edge detection but using OpenCV. So due 
+strict restricton on using the libraries other than PIL, dropped this approach. I didn't fully go forward with the 
+approach. Only experimented & used for extracting the QR code after injecting it. 
 
-### QR code(steganography):
-We experimented with steganography, injecting the correct answers into the least significant bit of the intensity value of the pixels, making it such that the injected image looked exactly the same as the original image. We were also able to extract the correct answers with full accuracy. The only problems with this approach was that we couldn't use jpg format to store the injected image because of jps's lossy compression which altered the injected text and that  the information is lost when the form is printed. we were able to fix the jpg compression issue by storing the injected image in png format.
-To try this, use inject_invisible.py and extract_invisible.py instead of inject.py and extract.py
+### Steganography QR code:
+We experimented with steganography, injecting the correct answers into the least significant bit of the intensity value 
+of the pixels, making it such that the injected image looked exactly the same as the original image. We were also able 
+to extract the correct answers with full accuracy. The only problems with this approach was that we couldn't use jpg 
+format to store the injected image because of jps's lossy compression which altered the injected text and that the 
+information is lost when the form is printed. we were able to fix the jpg compression issue by storing the injected 
+image in png format.
 
-### QR code(rot. invariant)
-This had really good potential of being super robust because it was rotationally invariant. It worked by encoding the text in the top left of the form using a starting and line break marker for each line, and for the last line, a starting and ending marker.\
+To try this, use `inject_invisible.py` and `extract_invisible.py` instead of `inject.py` and `extract.py`
+
+### Rotationally Invariant QR code
+This approach had a potential of being robust because it was rotationally invariant. It worked by encoding the 
+text in the top left of the form using a starting and line break marker for each line, and for the last line, a starting 
+and ending marker.\
+
 For example:\
 **SM**line1**LBM**\
 **SM**line2**LBM**\
@@ -176,10 +190,14 @@ SM=Starting marker\
 LBM=line break marker\
 EM=Ending marker
 
-This was rotationally invariant because it verified the start point of the encrypted text in the extractor. It was also invaraiant to chnages in the expected position of the qrcode. We ended up not using this because the pixels werent enlarged enough to be extracted from the printed form.
-To try this injector, simply use the inject_long_qr.py and extract_long_qr.py files in place of inject.py and extract.py
+This was rotationally invariant because it verified the start point of the encrypted text in the extractor. It was also 
+invariant to changes in the expected position of the qrcode. We ended up not using this because the pixels representing 
+individual characters were not enlarged enough to be extracted from the printed form reliably.
 
-## Contributions of the Authors
+To try this injector, simply use the `inject_long_qr.py` and `extract_long_qr.py` files in place of `inject.py` and 
+`extract.py`
+
+# Contributions of the Authors
 **Cakiroglu, Mert Onur:** Designed preprocessing algorithm, Implemented barcode inject/extract answers.
 
 **Kovi, Jagadeesh:** Implemented answer detection algorithm. Experimented with Edge detection(not working completely)

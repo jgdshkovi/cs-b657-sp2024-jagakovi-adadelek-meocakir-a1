@@ -149,6 +149,9 @@ In this section, we outline solution swe tried that either failed or that we cho
 ### Answer Detection(contour detection): 
 We tried using contour detection(tracing the boxes). The main idea is that if we follow the line and end up back where we started, we would have found a box. The main issue with this approach was that multiple pixels make a box and there could be a lot of repetition in just tryng to find one box leading to a lot of compute time
 
+### Sobel & Canny Edge Detection:
+Experiemented implementation of Edge Detection with Sobel operator & Canny Edge detection but using OpenCV. So due strict restricton on using the libraries other than PIL, dropped this approach. I didn't fully go forward with the approach. Only experimented & used for extracting the QR code after injecting it. 
+
 ### QR code(steganography):
 We experimented with steganography, injecting the correct answers into the least significant bit of the intensity value of the pixels, making it such that the injected image looked exactly the same as the original image. We were also able to extract the correct answers with full accuracy. The only problems with this approach was that we couldn't use jpg format to store the injected image because of jps's lossy compression which altered the injected text and that  the information is lost when the form is printed. we were able to fix the jpg compression issue by storing the injected image in png format.
 To try this, use inject_invisible.py and extract_invisible.py instead of inject.py and extract.py
@@ -170,7 +173,7 @@ To try this injector, simply use the inject_long_qr.py and extract_long_qr.py fi
 ## Contributions of the Authors
 **Cakiroglu, Mert Onur:** Designed preprocessing algorithm, Implemented barcode inject/extract answers.
 
-**Kovi, Jagadeesh:** Implemented answer detection algorithm.
+**Kovi, Jagadeesh:** Implemented answer detection algorithm. Experimented with Edge detection(not working completely)
 
 **Adelekan, Ade Emmanuel:** Experimented with different ideas for inject/extract(contour detection, steganography, rot. invariant)
 
